@@ -1,0 +1,75 @@
+# 多 API 組合壓力測試範例
+# 模擬使用者同時操作多個 API endpoint
+# weight 控制各 API 被呼叫的頻率比例
+
+name: "user_crud_flow"
+host: "https://api.example.com"
+
+apis:
+  # 查詢使用者列表 - 高頻操作
+  - name: "list_users"
+    method: "GET"
+    endpoint: "/api/users"
+    headers:
+      Authorization: "Bearer ${TOKEN}"
+    params:
+      page: 1
+      limit: 20
+    weight: 5
+    tags:
+      - crud
+      - read
+    assertions:
+      status_code: 200
+      response_fields:
+        - "data"
+      max_response_time_ms: 3000
+
+  # 查詢單一使用者 - 中頻操作
+  - name: "get_user_detail"
+    method: "GET"
+    endpoint: "/api/users/1"
+    headers:
+      Authorization: "Bearer ${TOKEN}"
+    weight: 3
+    tags:
+      - crud
+      - read
+    assertions:
+      status_code: 200
+
+  # 建立使用者 - 低頻操作 (使用動態資料)
+  - name: "create_user"
+    method: "POST"
+    endpoint: "/api/users"
+    headers:
+      Content-Type: "application/json"
+      Authorization: "Bearer ${TOKEN}"
+    body:
+      name: "${RANDOM_NAME}"
+      email: "${RANDOM_EMAIL}"
+      username: "${RANDOM_USERNAME}"
+      phone: "${RANDOM_PHONE}"
+    weight: 1
+    tags:
+      - crud
+      - write
+    assertions:
+      status_code: 201
+
+  # 更新使用者 - 低頻操作
+  - name: "update_user"
+    method: "PUT"
+    endpoint: "/api/users/1"
+    headers:
+      Content-Type: "application/json"
+      Authorization: "Bearer ${TOKEN}"
+    body:
+      name: "${RANDOM_NAME}"
+      email: "${RANDOM_EMAIL}"
+    weight: 1
+    tags:
+      - crud
+      - write
+    assertions:
+      status_code: 200
