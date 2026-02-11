@@ -1,0 +1,19 @@
+# 單一 API 壓力測試範例
+# 僅測試一個 API endpoint
+
+name: "bitopro_home"
+host: "https://www.bitopro.com"
+
+apis:
+  - name: "get_home_page"
+    method: "GET"
+    endpoint: "/ns/home"
+    headers:
+      Accept: "application/json"
+    weight: 1
+    tags:
+      - smoke
+      - single
+    assertions:
+      status_code: 200
+      max_response_time_ms: 5000
