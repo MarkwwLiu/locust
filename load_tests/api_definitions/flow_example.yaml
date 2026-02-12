@@ -37,6 +37,7 @@ flows:
   - name: "create_and_read_user"
     weight: 3
     tags:
+      - create_and_read_user
       - flow
       - crud
     steps:
@@ -82,6 +83,7 @@ apis:
     endpoint: "/health"
     weight: 1
     tags:
+      - health_check
       - smoke
     assertions:
       status_code: 200
