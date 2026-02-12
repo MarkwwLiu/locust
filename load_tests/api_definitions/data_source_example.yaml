@@ -24,6 +24,7 @@ apis:
       password: "${CSV:users.csv:password}"
     weight: 2
     tags:
+      - login_from_csv
       - data_source
       - auth
     assertions:
@@ -37,6 +38,7 @@ apis:
       currency: "${JSON:products.json:default_currency}"
     weight: 3
     tags:
+      - get_product
       - data_source
       - product
     assertions:

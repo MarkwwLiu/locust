@@ -12,6 +12,7 @@ apis:
       Accept: "application/json"
     weight: 1
     tags:
+      - get_home_page
       - smoke
       - single
     assertions:

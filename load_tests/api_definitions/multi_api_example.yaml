@@ -17,6 +17,7 @@ apis:
       limit: 20
     weight: 5
     tags:
+      - list_users
       - crud
       - read
     assertions:
@@ -33,6 +34,7 @@ apis:
       Authorization: "Bearer ${TOKEN}"
     weight: 3
     tags:
+      - get_user_detail
       - crud
       - read
     assertions:
@@ -52,6 +54,7 @@ apis:
       phone: "${RANDOM_PHONE}"
     weight: 1
     tags:
+      - create_user
       - crud
       - write
     assertions:
@@ -69,6 +72,7 @@ apis:
       email: "${RANDOM_EMAIL}"
     weight: 1
     tags:
+      - update_user
       - crud
       - write
     assertions:
