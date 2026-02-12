@@ -15,6 +15,15 @@
 
     # 指定自訂 API 定義目錄
     LOCUST_API_DIR=/path/to/definitions locust -f load_tests/locustfile.py
+
+    # 使用環境 Profile
+    LOCUST_PROFILE=staging locust -f load_tests/locustfile.py
+
+    # 啟用 JSON 報告輸出
+    LOCUST_JSON_REPORT=true locust -f load_tests/locustfile.py
+
+    # 啟用 Webhook 通知
+    LOCUST_WEBHOOK_URL=https://hooks.slack.com/... locust -f load_tests/locustfile.py
 """
 
 import os
@@ -24,13 +33,22 @@ import logging
 # 將專案根目錄加入 Python path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from load_tests.config.settings import Settings
+from load_tests.profiles.profile_loader import load_profile, apply_profile
 from load_tests.generator.generator import load_all_definitions
+
+# 載入事件監聽器 (import 時自動註冊 Locust events)
+import load_tests.listeners.report_listener  # noqa: F401
 
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(name)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
+
+# 載入環境 Profile 並套用設定
+profile = load_profile()
+apply_profile(Settings, profile)
 
 # 支援透過環境變數指定自訂定義目錄
 custom_dir = os.getenv("LOCUST_API_DIR")
