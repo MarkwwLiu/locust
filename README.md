@@ -19,6 +19,7 @@
 ## 專案結構
 
 ```
+export.py                      # 匯出獨立腳本的 CLI 入口
 load_tests/
 ├── locustfile.py              # 主入口
 ├── api_definitions/           # YAML 測試定義
@@ -32,6 +33,8 @@ load_tests/
 │   └── settings.py            # 全域設定
 ├── generator/
 │   └── generator.py           # YAML → Locust 類別產生器
+├── exporter/
+│   └── exporter.py            # 拋棄式腳本匯出器
 ├── utils/
 │   └── data_provider.py       # 資料產生與變數替換
 ├── listeners/
@@ -46,6 +49,7 @@ load_tests/
 tests/                         # 單元測試
 ├── test_base_user.py
 ├── test_data_provider.py
+├── test_exporter.py
 ├── test_generator.py
 └── test_profile_loader.py
 ```
@@ -76,6 +80,28 @@ LOCUST_PROFILE=staging locust -f load_tests/locustfile.py
 # 啟用 JSON 報告
 LOCUST_JSON_REPORT=true locust -f load_tests/locustfile.py
 ```
+
+### 匯出獨立腳本 (拋棄式腳本)
+
+將指定的 YAML 測試定義匯出為完全獨立的 Python 腳本，不依賴框架，可直接複製到任何地方執行：
+
+```bash
+# 匯出到預設路徑 (同目錄下 {name}_standalone.py)
+python export.py load_tests/api_definitions/flow_example.yaml
+
+# 匯出到指定路徑
+python export.py load_tests/api_definitions/flow_example.yaml -o /tmp/my_test.py
+
+# 匯出後直接執行
+locust -f /tmp/my_test.py --headless -u 10 -r 2 -t 30s
+```
+
+匯出器會自動分析 YAML 用到的功能，只將必要的程式碼內嵌到腳本中：
+- 用到 `${RANDOM_*}` → 內嵌 Faker 資料產生器
+- 用到 `${CSV:...}` → 將 CSV 資料直接嵌入腳本
+- 用到 `${JSON:...}` → 將 JSON 資料直接嵌入腳本
+- 用到 `auth` → 內嵌認證邏輯
+- 用到 `retry` → 內嵌重試機制
 
 ### 執行單元測試
 
