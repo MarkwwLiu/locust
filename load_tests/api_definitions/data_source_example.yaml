@@ -1,0 +1,44 @@
+# CSV / JSON 外部資料來源範例
+# 支援從 data/ 目錄下的 CSV 和 JSON 檔案讀取測試資料
+#
+# 語法:
+#   ${CSV:檔名:欄位名}    - 從 CSV 循序讀取
+#   ${JSON:檔名:路徑}     - 從 JSON 讀取 (支援點號路徑)
+#   ${CTX:變數名}         - 從請求鏈上下文讀取
+
+name: "data_source_demo"
+host: "https://api.example.com"
+
+wait_time:
+  mode: "between"
+  min: 2
+  max: 5
+
+apis:
+  # 使用 CSV 資料登入
+  - name: "login_from_csv"
+    method: "POST"
+    endpoint: "/auth/login"
+    body:
+      username: "${CSV:users.csv:username}"
+      password: "${CSV:users.csv:password}"
+    weight: 2
+    tags:
+      - data_source
+      - auth
+    assertions:
+      status_code: 200
+
+  # 使用 JSON 資料查詢商品
+  - name: "get_product"
+    method: "GET"
+    endpoint: "/api/products/${JSON:products.json:product_ids}"
+    params:
+      currency: "${JSON:products.json:default_currency}"
+    weight: 3
+    tags:
+      - data_source
+      - product
+    assertions:
+      status_code: 200
+      max_response_time_ms: 3000

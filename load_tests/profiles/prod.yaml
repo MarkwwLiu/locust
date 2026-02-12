@@ -1,0 +1,12 @@
+# 正式環境 Profile
+host: "https://api.example.com"
+users: 200
+spawn_rate: 10
+run_time: "30m"
+request_timeout: 30
+enable_assertions: false
+
+headers:
+  X-Environment: "production"
+
+env: {}

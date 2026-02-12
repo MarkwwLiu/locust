@@ -1,0 +1,88 @@
+# 請求鏈 (Flow) 範例
+# 模擬: 建立使用者 -> 取得使用者詳情 -> 更新使用者 的完整流程
+# 前一個 step 的 extract 值可在後續 step 使用 ${CTX:var_name}
+
+name: "user_flow"
+host: "https://api.example.com"
+
+# 認證設定: 測試開始時自動登入取得 Token
+auth:
+  type: bearer
+  prefix: "Bearer"
+  login:
+    method: "POST"
+    endpoint: "/auth/login"
+    body:
+      username: "test_user"
+      password: "test_password"
+    token_path: "data.access_token"
+  refresh:
+    endpoint: "/auth/refresh"
+    method: "POST"
+    token_path: "data.access_token"
+    token_ttl_seconds: 3600
+
+# Think Time 設定
+wait_time:
+  mode: "constant_pacing"
+  value: 5
+
+# 全域重試設定
+retry:
+  max_retries: 2
+  wait_seconds: 1
+  on_status: [502, 503, 504]
+
+flows:
+  - name: "create_and_read_user"
+    weight: 3
+    tags:
+      - flow
+      - crud
+    steps:
+      # Step 1: 建立使用者，提取 user_id
+      - name: "flow/create_user"
+        method: "POST"
+        endpoint: "/api/users"
+        headers:
+          Content-Type: "application/json"
+        body:
+          name: "${RANDOM_NAME}"
+          email: "${RANDOM_EMAIL}"
+        assertions:
+          status_code: 201
+        extract:
+          user_id: "data.id"
+          user_name: "data.name"
+
+      # Step 2: 用提取的 user_id 查詢剛建立的使用者
+      - name: "flow/get_created_user"
+        method: "GET"
+        endpoint: "/api/users/${CTX:user_id}"
+        assertions:
+          status_code: 200
+          response_fields:
+            - "data"
+
+      # Step 3: 更新使用者
+      - name: "flow/update_user"
+        method: "PUT"
+        endpoint: "/api/users/${CTX:user_id}"
+        headers:
+          Content-Type: "application/json"
+        body:
+          name: "${RANDOM_NAME}"
+        assertions:
+          status_code: 200
+
+# 也可以混合使用獨立 API 和 flow
+apis:
+  - name: "health_check"
+    method: "GET"
+    endpoint: "/health"
+    weight: 1
+    tags:
+      - smoke
+    assertions:
+      status_code: 200
+      max_response_time_ms: 1000

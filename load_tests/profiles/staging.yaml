@@ -1,0 +1,13 @@
+# Staging 環境 Profile
+host: "https://staging-api.example.com"
+users: 50
+spawn_rate: 5
+run_time: "5m"
+request_timeout: 30
+enable_assertions: true
+
+headers:
+  X-Environment: "staging"
+
+env:
+  TOKEN: "staging-test-token-12345"

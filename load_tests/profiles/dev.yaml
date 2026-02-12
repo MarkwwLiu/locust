@@ -1,0 +1,13 @@
+# 開發環境 Profile
+host: "https://dev-api.example.com"
+users: 5
+spawn_rate: 1
+run_time: "30s"
+request_timeout: 10
+enable_assertions: true
+
+headers:
+  X-Environment: "development"
+
+env:
+  TOKEN: "dev-test-token-12345"
